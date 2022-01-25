@@ -4,26 +4,44 @@ import ru.uzaretskaya.cafe.Meal;
 
 import java.util.List;
 
+import static ru.uzaretskaya.cafe.utils.Random.getRandomNumber;
+
 public class Main {
     public static void main(String[] args) {
 
         Cafe cafe = new Cafe();
 
         List<Meal> menu = cafe.getMenu();
+        cafe.open();
 
-        for (int i = 1; i <= 5; i++) {
-            Customer customer = new Customer("Customer " + i);
+        // test with maxCustomerCounts
+        int customerCounts = 0;
+        int maxCustomerCounts = 15;
+
+        while (customerCounts < maxCustomerCounts) {
+            customerCounts++;
+            Customer customer = new Customer("Customer " + customerCounts);
             List<Meal> mealsForOrder = customer.makeOrder(menu);
             cafe.createOrder(mealsForOrder, customer);
-        }
-
-        cafe.open();
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                Thread.sleep(getRandomNumber(1000, 2000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         cafe.close();
+
+        // endless test
+        /*while (true) {
+            Customer customer = new Customer("Customer");
+            List<Meal> mealsForOrder = customer.makeOrder(menu);
+            cafe.createOrder(mealsForOrder, customer);
+            try {
+                Thread.sleep(getRandomNumber(1000, 2000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
 }

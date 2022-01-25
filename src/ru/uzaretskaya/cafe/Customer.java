@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static ru.uzaretskaya.cafe.utils.Random.getRandomNumber;
+
 public class Customer {
     private final UUID id;
     private final String name;
@@ -46,10 +48,8 @@ public class Customer {
     public String toString() {
         return "Customer {" +
                 "name='" + name + '\'' +
+                "id='" + id + '\'' +
                 '}';
     }
 
-    private int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
-    }
 }
