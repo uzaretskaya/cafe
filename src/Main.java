@@ -1,7 +1,6 @@
 import ru.uzaretskaya.cafe.Cafe;
 import ru.uzaretskaya.cafe.Customer;
 import ru.uzaretskaya.cafe.Meal;
-import ru.uzaretskaya.cafe.Order;
 
 import java.util.List;
 
@@ -12,13 +11,13 @@ public class Main {
 
         List<Meal> menu = cafe.getMenu();
 
-       /* Customer customer = new Customer();
-        Order order = customer.createOrder(menu);*/
+        Customer customer = new Customer("Customer 1");
+        List<Meal> mealsForOrder = customer.makeOrder(menu);
+        cafe.createOrder(mealsForOrder, customer);
 
+        cafe.open();
 
-
-
+        cafe.close();
     }
-
 
 }

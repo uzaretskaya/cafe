@@ -1,25 +1,34 @@
 package ru.uzaretskaya.cafe;
 
-import ru.uzaretskaya.cafe.Meal;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-    private List<Meal> meals = new ArrayList<>();
+    private final List<Meal> meals = new ArrayList<>();
+    private int number;
+    private final Customer customer;
+    private boolean isReady = false;
 
-    public Order() {}
-
-    public Order(List<Meal> meals) {
+    public Order(List<Meal> meals, int number, Customer customer) {
+        this.customer = customer;
         this.meals.addAll(meals);
-    }
-
-    public boolean addMeal(Meal meal) {
-        return meals.add(meal);
+        this.number = number;
     }
 
     public List<Meal> getMeals() {
         return new ArrayList<>(meals);
     }
 
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setReady(boolean ready) {
+        isReady = ready;
+    }
+
+    @Override
+    public String toString() {
+        return "Order #" + number + " " + meals;
+    }
 }

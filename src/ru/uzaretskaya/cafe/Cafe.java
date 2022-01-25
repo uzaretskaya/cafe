@@ -3,12 +3,17 @@ package ru.uzaretskaya.cafe;
 import ru.uzaretskaya.cafe.utils.CafeProperties;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Cafe {
     private final List<Meal> availableMeals = new ArrayList<>();
     private final List<Cashier> cashiers = new ArrayList<>();
     private final CafeProperties properties = new CafeProperties();
+    private int numberOfOrder = 0;
+    private Queue<Order> orderQueue = new LinkedList<>();
+    private boolean isCafeOpen = false;
 
     public Cafe() {
         fillMenu();
@@ -17,6 +22,22 @@ public class Cafe {
 
     public List<Meal> getMenu() {
         return new ArrayList<>(availableMeals);
+    }
+
+    public void createOrder(List<Meal> meals, Customer customer) {
+        numberOfOrder++;
+        Order order = new Order(meals, numberOfOrder, customer);
+        orderQueue.offer(order);
+    }
+
+    public void open() {
+        isCafeOpen = true;
+        cookOrders();
+    }
+
+    public void close() {
+        isCafeOpen = false;
+        stopCooking();
     }
 
     private void fillMenu() {
@@ -29,8 +50,8 @@ public class Cafe {
 
     private void createCashiers() {
         int countCashiers = getCountCashiers();
-        for (int i = 0; i < countCashiers; i++) {
-            cashiers.add(new Cashier());
+        for (int i = 1; i <= countCashiers; i++) {
+            cashiers.add(new Cashier("Cashier " + i));
         }
     }
 
@@ -41,5 +62,22 @@ public class Cafe {
         } catch (NumberFormatException e) {
             return 3;
         }
+    }
+
+    private void cookOrders() {
+        //while (isCafeOpen) {
+        for (Cashier cashier : cashiers) {
+            Order order = orderQueue.peek();
+            if (order != null) {
+                if (cashier.cookOrder(order)) {
+                    orderQueue.poll();
+                }
+            }
+        }
+        //}
+    }
+
+    private void stopCooking() {
+
     }
 }
