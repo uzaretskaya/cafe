@@ -3,16 +3,16 @@ package ru.uzaretskaya.cafe;
 import ru.uzaretskaya.cafe.utils.CafeProperties;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cafe {
     private final List<Meal> availableMeals = new ArrayList<>();
     private final List<Cashier> cashiers = new ArrayList<>();
     private final CafeProperties properties = new CafeProperties();
-    private int numberOfOrder = 0;
-    private Queue<Order> orderQueue = new LinkedList<>();
+    private final ConcurrentLinkedQueue<Order> orderQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger numberOfOrder = new AtomicInteger(0);
     private boolean isCafeOpen = false;
 
     public Cafe() {
@@ -25,19 +25,30 @@ public class Cafe {
     }
 
     public void createOrder(List<Meal> meals, Customer customer) {
-        numberOfOrder++;
-        Order order = new Order(meals, numberOfOrder, customer);
+        int orderNumber = numberOfOrder.addAndGet(1);
+        Order order = new Order(meals, orderNumber, customer);
         orderQueue.offer(order);
     }
 
     public void open() {
         isCafeOpen = true;
-        cookOrders();
+
+        for (Cashier cashier : cashiers) {
+            Thread t = new Thread(cashier);
+            t.start();
+        }
     }
 
     public void close() {
         isCafeOpen = false;
-        stopCooking();
+    }
+
+    public Order getCurrentOrder() {
+        return orderQueue.poll();
+    }
+
+    public boolean isCafeOpen() {
+        return isCafeOpen;
     }
 
     private void fillMenu() {
@@ -51,7 +62,7 @@ public class Cafe {
     private void createCashiers() {
         int countCashiers = getCountCashiers();
         for (int i = 1; i <= countCashiers; i++) {
-            cashiers.add(new Cashier("Cashier " + i));
+            cashiers.add(new Cashier("Cashier " + i, this));
         }
     }
 
@@ -64,20 +75,4 @@ public class Cafe {
         }
     }
 
-    private void cookOrders() {
-        //while (isCafeOpen) {
-        for (Cashier cashier : cashiers) {
-            Order order = orderQueue.peek();
-            if (order != null) {
-                if (cashier.cookOrder(order)) {
-                    orderQueue.poll();
-                }
-            }
-        }
-        //}
-    }
-
-    private void stopCooking() {
-
-    }
 }
