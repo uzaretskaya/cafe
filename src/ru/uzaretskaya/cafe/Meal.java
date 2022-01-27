@@ -1,9 +1,9 @@
 package ru.uzaretskaya.cafe;
 
 public class Meal {
-    private String name;
-    private int calories;
-    private int cost;
+    private final String name;
+    private final int calories;
+    private final double cost;
 
     public Meal(String name, int calories, int cost) {
         this.name = name;
@@ -18,5 +18,9 @@ public class Meal {
                 ", calories=" + calories +
                 ", cost=" + cost +
                 '}';
+    }
+
+    public double getCost() {
+        return cost;
     }
 }
