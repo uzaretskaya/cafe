@@ -1,18 +1,25 @@
 package ru.uzaretskaya.cafe.utils.statistic;
 
 import ru.uzaretskaya.cafe.Cafe;
+import ru.uzaretskaya.cafe.utils.FileWriter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class StatisticManager implements Runnable{
+    private List<String> unsavedStatistic = new ArrayList<>();
     final Cafe cafe;
     int minutes;
 
-    StatisticManager(Cafe cafe) {
+    StatisticManager(Cafe cafe, int minutes) {
         this.cafe = cafe;
+        this.minutes = minutes;
     }
 
     public void run() {
         while (true) {
-            if (!cafe.isCafeOpen()) return;
+            if (cafe.isCafeClosed()) return;
             sleepForMinutes(minutes);
             saveStatistic();
         }
@@ -28,4 +35,15 @@ public abstract class StatisticManager implements Runnable{
         }
     }
 
+    protected void saveToFile(String filename, List<String> statistics) {
+        if (unsavedStatistic.size() > 0) {
+            statistics.addAll(unsavedStatistic);
+        }
+        try {
+            FileWriter.writeStringArrayToFile(statistics, filename);
+        } catch (IOException e) {
+            unsavedStatistic = statistics;
+            e.printStackTrace();
+        }
+    }
 }

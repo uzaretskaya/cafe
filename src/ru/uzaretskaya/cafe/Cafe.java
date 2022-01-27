@@ -3,6 +3,8 @@ package ru.uzaretskaya.cafe;
 import ru.uzaretskaya.cafe.utils.CafeProperties;
 import ru.uzaretskaya.cafe.utils.statistic.CashierStatisticManager;
 import ru.uzaretskaya.cafe.utils.statistic.StatisticManager;
+import ru.uzaretskaya.cafe.utils.statistic.UserStatistic;
+import ru.uzaretskaya.cafe.utils.statistic.UserStatisticManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ public class Cafe {
     private final List<Meal> availableMeals = new ArrayList<>();
     private final List<Cashier> cashiers = new ArrayList<>();
     private final List<StatisticManager> managers = new ArrayList<>();
+    private final List<UserStatistic> userStatistic = new ArrayList<>();
     private final CafeProperties properties = new CafeProperties();
     private final ConcurrentLinkedQueue<Order> orderQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger numberOfOrder = new AtomicInteger(0);
@@ -32,6 +35,20 @@ public class Cafe {
         int orderNumber = numberOfOrder.addAndGet(1);
         Order order = new Order(meals, orderNumber, customer);
         orderQueue.offer(order);
+        saveUserStatistic(customer, meals);
+    }
+
+    private void saveUserStatistic(Customer customer, List<Meal> meals) {
+        int countMeals = meals.size();
+        double sumCost = 0;
+        int sumCalories = 0;
+        for (Meal meal : meals) {
+            sumCalories += meal.getCalories();
+            sumCost += meal.getCost();
+        }
+        double averageCalories = sumCalories * 1.0 / countMeals;
+        double averageSum = sumCost / countMeals;
+        userStatistic.add(new UserStatistic(customer.getId(), countMeals, averageCalories, averageSum));
     }
 
     public void open() {
@@ -56,8 +73,8 @@ public class Cafe {
         return orderQueue.poll();
     }
 
-    public boolean isCafeOpen() {
-        return isCafeOpen;
+    public boolean isCafeClosed() {
+        return !isCafeOpen;
     }
 
     public List<String> getCashierStatistic() {
@@ -71,10 +88,24 @@ public class Cafe {
         return statistics;
     }
 
+    public List<String> getUserStatistic() {
+        List<String> statistic = userStatistic.stream().map(UserStatistic::toString).toList();
+        userStatistic.clear();
+        return statistic;
+    }
+
     public String getCashierStatisticFilename() {
         String fileName = properties.getProperty("cashierStatisticFilename");
         if (fileName == null) {
             fileName = "cashierStatistic";
+        }
+        return fileName + ".csv";
+    }
+
+    public String getUserStatisticFilename() {
+        String fileName = properties.getProperty("userStatisticFilename");
+        if (fileName == null) {
+            fileName = "userStatistic";
         }
         return fileName + ".csv";
     }
@@ -95,8 +126,11 @@ public class Cafe {
     }
 
     private void createManagers() {
-        StatisticManager cashierManager = new CashierStatisticManager(this);
+        StatisticManager cashierManager = new CashierStatisticManager(this, getMinutesForCashierStatisticManager());
         managers.add(cashierManager);
+
+        StatisticManager userManager = new UserStatisticManager(this, getMinutesForUserStatisticManager());
+        managers.add(userManager);
     }
 
     private int getCountCashiers() {
@@ -105,6 +139,24 @@ public class Cafe {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return 3;
+        }
+    }
+
+    private int getMinutesForCashierStatisticManager() {
+        String value = properties.getProperty("cashierStatisticMinutes");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
+    private int getMinutesForUserStatisticManager() {
+        String value = properties.getProperty("userStatisticMinutes");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 2;
         }
     }
 

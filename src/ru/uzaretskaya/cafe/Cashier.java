@@ -26,7 +26,7 @@ public class Cashier implements Runnable {
 
     public void run() {
         while (true) {
-            if (!cafe.isCafeOpen()) return;
+            if (cafe.isCafeClosed()) return;
 
             Order currentOrder = cafe.getCurrentOrder();
             if (currentOrder != null) {

@@ -11,6 +11,14 @@ public class Meal {
         this.cost = cost;
     }
 
+    public double getCost() {
+        return cost;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
     @Override
     public String toString() {
         return "Meal {" +
@@ -18,9 +26,5 @@ public class Meal {
                 ", calories=" + calories +
                 ", cost=" + cost +
                 '}';
-    }
-
-    public double getCost() {
-        return cost;
     }
 }

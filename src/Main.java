@@ -16,7 +16,7 @@ public class Main {
 
         // test with maxCustomerCounts
         int customerCounts = 0;
-        int maxCustomerCounts = 2;
+        int maxCustomerCounts = 10;
 
         while (customerCounts < maxCustomerCounts) {
             customerCounts++;
