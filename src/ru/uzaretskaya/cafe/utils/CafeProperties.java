@@ -17,10 +17,6 @@ public class CafeProperties {
         }
     }
 
-    public String getProperty(String propertyName) {
-        return property.getProperty(propertyName);
-    }
-
     public int getCountCashiers() {
         String value = getProperty("countCashiers");
         try {
@@ -31,11 +27,11 @@ public class CafeProperties {
     }
 
     public int getCountCustomers() {
-        String value = getProperty("countCashiers");
+        String value = getProperty("countCustomers");
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 3;
+            return 6;
         }
     }
 
@@ -80,5 +76,9 @@ public class CafeProperties {
             fileName = "cashierStatistic";
         }
         return fileName + ".csv";
+    }
+
+    private String getProperty(String propertyName) {
+        return property.getProperty(propertyName);
     }
 }

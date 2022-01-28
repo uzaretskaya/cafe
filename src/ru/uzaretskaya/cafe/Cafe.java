@@ -1,7 +1,11 @@
 package ru.uzaretskaya.cafe;
 
 import ru.uzaretskaya.cafe.utils.CafeProperties;
-import ru.uzaretskaya.cafe.utils.statistic.*;
+import ru.uzaretskaya.cafe.utils.Pair;
+import ru.uzaretskaya.cafe.utils.statistic.CashierStatisticManager;
+import ru.uzaretskaya.cafe.utils.statistic.MainManager;
+import ru.uzaretskaya.cafe.utils.statistic.Manager;
+import ru.uzaretskaya.cafe.utils.statistic.UserStatisticManager;
 import ru.uzaretskaya.cafe.utils.statistic.dto.UserStatistic;
 
 import java.util.ArrayList;
@@ -63,9 +67,9 @@ public class Cafe {
 
     public void createOrder(List<Meal> meals, User customer) {
         int orderNumber = numberOfOrder.addAndGet(1);
-        Order order = new Order(meals, orderNumber, customer);
+        Order order = new Order(meals, orderNumber);
         orderQueue.offer(order);
-        saveUserStatistic(customer, meals);
+        saveUserStatistic(customer, order);
     }
 
     public Order getCurrentOrder() {
@@ -145,25 +149,13 @@ public class Cafe {
         }
     }
 
-    private void saveUserStatistic(User customer, List<Meal> meals) {
-        int countMeals = meals.size();
-        double sumCost = 0;
-        int sumCalories = 0;
-        for (Meal meal : meals) {
-            sumCalories += meal.getCalories();
-            sumCost += meal.getCost();
-        }
-        double averageCalories = sumCalories * 1.0 / countMeals;
-        double averageSum = sumCost / countMeals;
-
-        UserStatistic current = userStatistic.get(customer.getId());
-        if (current == null) {
-            userStatistic.put(customer.getId(), new UserStatistic(1, averageCalories, averageSum));
+    private void saveUserStatistic(User customer, Order order) {
+        Pair<Double, Double> orderInfo = order.getOrderAverageCaloriesAndAverageSum();
+        UserStatistic savedUser = userStatistic.get(customer.getId());
+        if (savedUser == null) {
+            userStatistic.put(customer.getId(), new UserStatistic(1, orderInfo.getX(), orderInfo.getY()));
         } else {
-            userStatistic.put(customer.getId(),
-                    new UserStatistic(1 + current.countOrders(),
-                            averageCalories + current.averageCalories(),
-                            averageSum + current.averageOrderSum()));
+            savedUser.updateAddingValues(1, orderInfo.getX(), orderInfo.getY());
         }
     }
 }

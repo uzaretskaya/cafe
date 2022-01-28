@@ -32,13 +32,8 @@ public class Cashier implements Runnable {
             if (currentOrder != null) {
                 List<Meal> mealsToPrepare = currentOrder.getMeals();
                 try {
-                    // System.out.println(this + " started cook " + currentOrder);
-
                     Thread.sleep(1000L * mealsToPrepare.size());
-                    currentOrder.setReady(true);
-                    addStatistic(getOrderSum(mealsToPrepare));
-
-                    // System.out.println(this + " finished " + currentOrder);
+                    addStatistic(currentOrder.getOrderSum());
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
@@ -61,10 +56,6 @@ public class Cashier implements Runnable {
         return "Cashier {" +
                 "name='" + name + '\'' +
                 '}';
-    }
-
-    private double getOrderSum(List<Meal> mealsToPrepare) {
-        return mealsToPrepare.stream().mapToDouble(Meal::getCost).sum();
     }
 
     private void addStatistic(double orderSum) {

@@ -7,7 +7,7 @@ public class Main {
         cafe.open();
 
         try {
-            Thread.sleep(1000L * 7 * 60);
+            Thread.sleep(1000L * 4 * 60);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

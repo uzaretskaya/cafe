@@ -2,10 +2,7 @@ package ru.uzaretskaya.cafe;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-
-import static ru.uzaretskaya.cafe.utils.Random.getRandomNumber;
 
 public class User implements Runnable {
     private final UUID id;
@@ -27,7 +24,6 @@ public class User implements Runnable {
             int mealIndex = getRandomNumber(0, menu.size() - 1);
             mealsForOrder.add(menu.get(mealIndex));
         }
-        //System.out.println(this + " ordered " + mealsForOrder);
         cafe.createOrder(mealsForOrder, this);
     }
 
@@ -35,6 +31,7 @@ public class User implements Runnable {
         return id;
     }
 
+    @Override
     public void run() {
         while (true) {
             if (cafe.isCafeClosed()) return;
@@ -42,26 +39,6 @@ public class User implements Runnable {
             sleepForHalfMinute();
             makeOrder();
         }
-    }
-
-    private void sleepForHalfMinute() {
-        try {
-            Thread.sleep(1000L * 30);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User customer = (User) o;
-        return id.equals(customer.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     @Override
@@ -72,4 +49,15 @@ public class User implements Runnable {
                 '}';
     }
 
+    private void sleepForHalfMinute() {
+        try {
+            Thread.sleep(1000L * 30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
+    }
 }
