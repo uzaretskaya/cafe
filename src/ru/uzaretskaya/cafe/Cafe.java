@@ -4,7 +4,11 @@ import ru.uzaretskaya.cafe.utils.CafeProperties;
 import ru.uzaretskaya.cafe.utils.statistic.*;
 import ru.uzaretskaya.cafe.utils.statistic.dto.UserStatistic;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 

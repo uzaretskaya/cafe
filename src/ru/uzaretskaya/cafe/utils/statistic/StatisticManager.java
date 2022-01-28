@@ -1,7 +1,7 @@
 package ru.uzaretskaya.cafe.utils.statistic;
 
 import ru.uzaretskaya.cafe.Cafe;
-import ru.uzaretskaya.cafe.utils.FileWriter;
+import ru.uzaretskaya.cafe.utils.FileReaderWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public abstract class StatisticManager implements Manager {
             statistics.addAll(unsavedStatistic);
         }
         try {
-            FileWriter.writeStringArrayToFile(statistics, filename);
+            FileReaderWriter.writeStringArrayToFile(statistics, filename);
         } catch (IOException e) {
             unsavedStatistic = statistics;
             e.printStackTrace();

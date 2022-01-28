@@ -3,6 +3,7 @@ package ru.uzaretskaya.cafe.utils.statistic;
 import ru.uzaretskaya.cafe.Cafe;
 import ru.uzaretskaya.cafe.Cashier;
 import ru.uzaretskaya.cafe.User;
+import ru.uzaretskaya.cafe.utils.FileReaderWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +36,7 @@ public class MainManager implements Manager {
     }
 
     private void getTheBestCashier() {
-        List<String[]> lines = readFile(cafe.getFilenameForCashierStatistic());
+        List<String[]> lines = FileReaderWriter.readFile(cafe.getFilenameForCashierStatistic());
         if (lines == null) return;
 
         Map<String, StatisticInfo> map = new HashMap<>();
@@ -77,7 +78,7 @@ public class MainManager implements Manager {
     }
 
     private void getTheHungriestUser() {
-        List<String[]> lines = readFile(cafe.getFilenameForUserStatistic());
+        List<String[]> lines = FileReaderWriter.readFile(cafe.getFilenameForUserStatistic());
         if (lines == null) return;
 
         Map<String, Double> map = new HashMap<>();
@@ -106,17 +107,6 @@ public class MainManager implements Manager {
             }
         }
         return new StatisticResult(resultId, maxCalories);
-    }
-
-    private List<String[]> readFile(String filename) {
-        try {
-            return Files.lines(Paths.get(filename))
-                    .map(line -> line.split(","))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private class StatisticInfo {
