@@ -6,10 +6,10 @@ import java.util.List;
 public class Order {
     private final List<Meal> meals = new ArrayList<>();
     private int number;
-    private final Customer customer;
+    private final User customer;
     private boolean isReady = false;
 
-    public Order(List<Meal> meals, int number, Customer customer) {
+    public Order(List<Meal> meals, int number, User customer) {
         this.customer = customer;
         this.meals.addAll(meals);
         this.number = number;

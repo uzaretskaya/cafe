@@ -11,7 +11,7 @@ public class CashierStatisticManager extends StatisticManager {
 
     void saveStatistic() {
         List<String> statistics = cafe.getCashierStatistic();
-        String filename = cafe.getCashierStatisticFilename();
+        String filename = cafe.getFilenameForCashierStatistic();
         saveToFile(filename, statistics);
     }
 }

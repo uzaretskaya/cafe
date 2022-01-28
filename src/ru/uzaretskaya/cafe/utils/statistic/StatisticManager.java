@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class StatisticManager implements Runnable{
+public abstract class StatisticManager implements Manager {
     private List<String> unsavedStatistic = new ArrayList<>();
     final Cafe cafe;
     int minutes;
@@ -26,14 +26,6 @@ public abstract class StatisticManager implements Runnable{
     }
 
     abstract void saveStatistic();
-
-    private void sleepForMinutes(int min) {
-        try {
-            Thread.sleep(1000L * min * 60);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     protected void saveToFile(String filename, List<String> statistics) {
         if (unsavedStatistic.size() > 0) {

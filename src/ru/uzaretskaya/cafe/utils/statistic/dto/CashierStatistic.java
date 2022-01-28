@@ -1,4 +1,4 @@
-package ru.uzaretskaya.cafe.utils.statistic;
+package ru.uzaretskaya.cafe.utils.statistic.dto;
 
 import java.util.UUID;
 

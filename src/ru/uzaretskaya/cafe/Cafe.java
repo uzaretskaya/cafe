@@ -1,21 +1,21 @@
 package ru.uzaretskaya.cafe;
 
 import ru.uzaretskaya.cafe.utils.CafeProperties;
-import ru.uzaretskaya.cafe.utils.statistic.CashierStatisticManager;
-import ru.uzaretskaya.cafe.utils.statistic.StatisticManager;
-import ru.uzaretskaya.cafe.utils.statistic.UserStatistic;
-import ru.uzaretskaya.cafe.utils.statistic.UserStatisticManager;
+import ru.uzaretskaya.cafe.utils.statistic.*;
+import ru.uzaretskaya.cafe.utils.statistic.dto.UserStatistic;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cafe {
     private final List<Meal> availableMeals = new ArrayList<>();
     private final List<Cashier> cashiers = new ArrayList<>();
-    private final List<StatisticManager> managers = new ArrayList<>();
-    private final List<UserStatistic> userStatistic = new ArrayList<>();
+    private final List<Manager> managers = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
+    private final Map<UUID, UserStatistic> userStatistic = new HashMap<>();
+    private final String filenameForCashierStatistic;
+    private final String filenameForUserStatistic;
     private final CafeProperties properties = new CafeProperties();
     private final ConcurrentLinkedQueue<Order> orderQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger numberOfOrder = new AtomicInteger(0);
@@ -25,30 +25,13 @@ public class Cafe {
         fillMenu();
         createCashiers();
         createManagers();
+        createUsers();
+        filenameForCashierStatistic = properties.getCashierStatisticFilenameFromProperties();
+        filenameForUserStatistic = properties.getUserStatisticFilenameFromProperties();
     }
 
     public List<Meal> getMenu() {
         return new ArrayList<>(availableMeals);
-    }
-
-    public void createOrder(List<Meal> meals, Customer customer) {
-        int orderNumber = numberOfOrder.addAndGet(1);
-        Order order = new Order(meals, orderNumber, customer);
-        orderQueue.offer(order);
-        saveUserStatistic(customer, meals);
-    }
-
-    private void saveUserStatistic(Customer customer, List<Meal> meals) {
-        int countMeals = meals.size();
-        double sumCost = 0;
-        int sumCalories = 0;
-        for (Meal meal : meals) {
-            sumCalories += meal.getCalories();
-            sumCost += meal.getCost();
-        }
-        double averageCalories = sumCalories * 1.0 / countMeals;
-        double averageSum = sumCost / countMeals;
-        userStatistic.add(new UserStatistic(customer.getId(), countMeals, averageCalories, averageSum));
     }
 
     public void open() {
@@ -59,14 +42,26 @@ public class Cafe {
             t.start();
         }
 
-        for (StatisticManager manager : managers) {
+        for (Manager manager : managers) {
             Thread t = new Thread(manager);
+            t.start();
+        }
+
+        for (User user : users) {
+            Thread t = new Thread(user);
             t.start();
         }
     }
 
     public void close() {
         isCafeOpen = false;
+    }
+
+    public void createOrder(List<Meal> meals, User customer) {
+        int orderNumber = numberOfOrder.addAndGet(1);
+        Order order = new Order(meals, orderNumber, customer);
+        orderQueue.offer(order);
+        saveUserStatistic(customer, meals);
     }
 
     public Order getCurrentOrder() {
@@ -89,25 +84,28 @@ public class Cafe {
     }
 
     public List<String> getUserStatistic() {
-        List<String> statistic = userStatistic.stream().map(UserStatistic::toString).toList();
+        List<String> statistic = new ArrayList<>(userStatistic.size());
+        for (Map.Entry<UUID, UserStatistic> entry : userStatistic.entrySet()) {
+            statistic.add(entry.getKey() + "," + entry.getValue());
+        }
         userStatistic.clear();
         return statistic;
     }
 
-    public String getCashierStatisticFilename() {
-        String fileName = properties.getProperty("cashierStatisticFilename");
-        if (fileName == null) {
-            fileName = "cashierStatistic";
-        }
-        return fileName + ".csv";
+    public String getFilenameForCashierStatistic() {
+        return filenameForCashierStatistic;
     }
 
-    public String getUserStatisticFilename() {
-        String fileName = properties.getProperty("userStatisticFilename");
-        if (fileName == null) {
-            fileName = "userStatistic";
-        }
-        return fileName + ".csv";
+    public String getFilenameForUserStatistic() {
+        return filenameForUserStatistic;
+    }
+
+    public List<Cashier> getCashiers() {
+        return cashiers;
+    }
+
+    public List<User> getUsers() {
+        return users;
     }
 
     private void fillMenu() {
@@ -119,45 +117,49 @@ public class Cafe {
     }
 
     private void createCashiers() {
-        int countCashiers = getCountCashiers();
+        int countCashiers = properties.getCountCashiers();
         for (int i = 1; i <= countCashiers; i++) {
             cashiers.add(new Cashier("Cashier " + i, this));
         }
     }
 
     private void createManagers() {
-        StatisticManager cashierManager = new CashierStatisticManager(this, getMinutesForCashierStatisticManager());
+        Manager cashierManager = new CashierStatisticManager(this, properties.getMinutesForCashierStatisticManager());
         managers.add(cashierManager);
 
-        StatisticManager userManager = new UserStatisticManager(this, getMinutesForUserStatisticManager());
+        Manager userManager = new UserStatisticManager(this, properties.getMinutesForUserStatisticManager());
         managers.add(userManager);
+
+        Manager mainManager = new MainManager(this, properties.getMinutesForMainManager());
+        managers.add(mainManager);
     }
 
-    private int getCountCashiers() {
-        String value = properties.getProperty("countCashiers");
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return 3;
+    private void createUsers() {
+        int countCustomers = properties.getCountCustomers();
+        for (int i = 1; i <= countCustomers; i++) {
+            users.add(new User("Customer " + i, this));
         }
     }
 
-    private int getMinutesForCashierStatisticManager() {
-        String value = properties.getProperty("cashierStatisticMinutes");
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return 1;
+    private void saveUserStatistic(User customer, List<Meal> meals) {
+        int countMeals = meals.size();
+        double sumCost = 0;
+        int sumCalories = 0;
+        for (Meal meal : meals) {
+            sumCalories += meal.getCalories();
+            sumCost += meal.getCost();
+        }
+        double averageCalories = sumCalories * 1.0 / countMeals;
+        double averageSum = sumCost / countMeals;
+
+        UserStatistic current = userStatistic.get(customer.getId());
+        if (current == null) {
+            userStatistic.put(customer.getId(), new UserStatistic(1, averageCalories, averageSum));
+        } else {
+            userStatistic.put(customer.getId(),
+                    new UserStatistic(1 + current.countOrders(),
+                            averageCalories + current.averageCalories(),
+                            averageSum + current.averageOrderSum()));
         }
     }
-
-    private int getMinutesForUserStatisticManager() {
-        String value = properties.getProperty("userStatisticMinutes");
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return 2;
-        }
-    }
-
 }

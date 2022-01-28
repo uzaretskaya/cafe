@@ -20,4 +20,65 @@ public class CafeProperties {
     public String getProperty(String propertyName) {
         return property.getProperty(propertyName);
     }
+
+    public int getCountCashiers() {
+        String value = getProperty("countCashiers");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 3;
+        }
+    }
+
+    public int getCountCustomers() {
+        String value = getProperty("countCashiers");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 3;
+        }
+    }
+
+    public int getMinutesForCashierStatisticManager() {
+        String value = getProperty("cashierStatisticMinutes");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
+    public int getMinutesForUserStatisticManager() {
+        String value = getProperty("userStatisticMinutes");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 2;
+        }
+    }
+
+    public int getMinutesForMainManager() {
+        String value = getProperty("mainStatisticMinutes");
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 2;
+        }
+    }
+
+    public String getUserStatisticFilenameFromProperties() {
+        String fileName = getProperty("userStatisticFilename");
+        if (fileName == null) {
+            fileName = "userStatistic";
+        }
+        return fileName + ".csv";
+    }
+
+    public String getCashierStatisticFilenameFromProperties() {
+        String fileName = getProperty("cashierStatisticFilename");
+        if (fileName == null) {
+            fileName = "cashierStatistic";
+        }
+        return fileName + ".csv";
+    }
 }

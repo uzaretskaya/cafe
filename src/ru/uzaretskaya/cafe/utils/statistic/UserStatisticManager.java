@@ -12,7 +12,7 @@ public class UserStatisticManager extends StatisticManager {
 
     void saveStatistic() {
         List<String> statistics = cafe.getUserStatistic();
-        String filename = cafe.getUserStatisticFilename();
+        String filename = cafe.getFilenameForUserStatistic();
         saveToFile(filename, statistics);
     }
 }

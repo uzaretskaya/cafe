@@ -1,6 +1,6 @@
 package ru.uzaretskaya.cafe;
 
-import ru.uzaretskaya.cafe.utils.statistic.CashierStatistic;
+import ru.uzaretskaya.cafe.utils.statistic.dto.CashierStatistic;
 
 import java.util.List;
 import java.util.UUID;
