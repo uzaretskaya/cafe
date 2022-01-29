@@ -53,9 +53,7 @@ public class Cashier implements Runnable {
 
     @Override
     public String toString() {
-        return "Cashier {" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 
     private void addStatistic(double orderSum) {

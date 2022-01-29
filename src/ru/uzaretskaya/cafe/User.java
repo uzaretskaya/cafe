@@ -43,10 +43,7 @@ public class User implements Runnable {
 
     @Override
     public String toString() {
-        return "Customer {" +
-                "name='" + name + '\'' +
-                "id='" + id + '\'' +
-                '}';
+        return name;
     }
 
     private void sleepForHalfMinute() {

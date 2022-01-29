@@ -6,6 +6,7 @@ import ru.uzaretskaya.cafe.User;
 import ru.uzaretskaya.cafe.utils.FileReaderWriter;
 import ru.uzaretskaya.cafe.utils.Pair;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class MainManager implements Manager {
     private final Cafe cafe;
     private final int minutes;
+    private final DecimalFormat df = new DecimalFormat("#.00");
 
     public MainManager(Cafe cafe, int minutes) {
         this.cafe = cafe;
@@ -36,18 +38,35 @@ public class MainManager implements Manager {
         List<String[]> lines = FileReaderWriter.readFile(cafe.getFilenameForCashierStatistic());
         if (lines == null) return;
 
-        Map<String, Pair<Integer, Double>> mapIdToOrdersCountAndOrdersSum = collectToMap(lines);
-        Pair<String,Double> result = getBestCashierIdAndAverageCheck(mapIdToOrdersCountAndOrdersSum);
+        Pair<String,Double> result = getBestCashierIdAndAverageCheck(lines);
 
         List<Cashier> cafeCashiers = cafe.getCashiers();
         cafeCashiers.stream()
                 .filter(cashier -> cashier.getId().toString().equals(result.getX()))
                 .findFirst()
                 .ifPresent(cashier ->
-                        System.out.println("The best cashier is " + cashier + " with " + result.getY() + " average check!"));
+                        System.out.println("The best cashier is " + cashier + " with " + df.format(result.getY()) + " average check!"));
     }
 
-    private Map<String, Pair<Integer, Double>> collectToMap(List<String[]> lines) {
+    private Pair<String,Double> getBestCashierIdAndAverageCheck(List<String[]> lines) {
+        Map<String, Pair<Integer, Double>> mapIdToOrdersCountAndOrdersSum = getMapIdToOrdersCountAndOrdersSum(lines);
+
+        String resultId = "";
+        double maxCheck = 0.0;
+        for (Map.Entry<String, Pair<Integer,Double>> idToOrdersCountAndOrdersSum : mapIdToOrdersCountAndOrdersSum.entrySet()) {
+            Pair<Integer,Double> ordersCountAndOrdersSum = idToOrdersCountAndOrdersSum.getValue();
+            int ordersCount = ordersCountAndOrdersSum.getX();
+            double ordersSum = ordersCountAndOrdersSum.getY();
+            double averageCheck = ordersSum / ordersCount;
+            if (averageCheck > maxCheck) {
+                resultId = idToOrdersCountAndOrdersSum.getKey();
+                maxCheck = averageCheck;
+            }
+        }
+        return new Pair<>(resultId, maxCheck);
+    }
+
+    private Map<String, Pair<Integer, Double>> getMapIdToOrdersCountAndOrdersSum(List<String[]> lines) {
         Map<String, Pair<Integer, Double>> map = new HashMap<>();
         for (String[] line : lines) {
             String currentKey = line[0];
@@ -65,33 +84,17 @@ public class MainManager implements Manager {
         return map;
     }
 
-    private Pair<String,Double> getBestCashierIdAndAverageCheck(Map<String, Pair<Integer,Double>> map) {
-        String resultId = "";
-        double maxCheck = 0.0;
-        for (Map.Entry<String, Pair<Integer,Double>> entry : map.entrySet()) {
-            Pair<Integer,Double> ordersCountAndOrdersSum = entry.getValue();
-            int ordersCount = ordersCountAndOrdersSum.getX();
-            double ordersSum = ordersCountAndOrdersSum.getY();
-            double averageCheck = ordersSum / ordersCount;
-            if (averageCheck > maxCheck) {
-                resultId = entry.getKey();
-            }
-        }
-        return new Pair<>(resultId, maxCheck);
-    }
-
     private void getTheHungriestUser() {
         List<String[]> lines = FileReaderWriter.readFile(cafe.getFilenameForUserStatistic());
         if (lines == null) return;
 
-        Map<String, Double> mapIdToSumCalories = getMapIdToSumCalories(lines);
-        Pair<String,Double> result = calculateTheHungriestUser(mapIdToSumCalories);
+        Pair<String,Double> result = calculateTheHungriestUser(lines);
 
         List<User> cafeUsers = cafe.getUsers();
         cafeUsers.stream()
                 .filter(user -> user.getId().toString().equals(result.getX()))
                 .findFirst()
-                .ifPresent(user -> System.out.println("The hungriest user is " + user + " with " + result.getY() + " calories!"));
+                .ifPresent(user -> System.out.println("The hungriest user is " + user + " with " + df.format(result.getY()) + " calories!"));
     }
 
     private Map<String, Double> getMapIdToSumCalories(List<String[]> lines) {
@@ -104,13 +107,16 @@ public class MainManager implements Manager {
         return mapIdToSumCalories;
     }
 
-    private Pair<String,Double> calculateTheHungriestUser(Map<String, Double> map) {
+    private Pair<String,Double> calculateTheHungriestUser(List<String[]> lines) {
+        Map<String, Double> mapIdToSumCalories = getMapIdToSumCalories(lines);
+
         String resultId = "";
         double maxCalories = 0.0;
-        for (Map.Entry<String, Double> idAndCalories : map.entrySet()) {
+        for (Map.Entry<String, Double> idAndCalories : mapIdToSumCalories.entrySet()) {
             double currentCalories = idAndCalories.getValue();
             if (currentCalories > maxCalories) {
                 resultId = idAndCalories.getKey();
+                maxCalories = currentCalories;
             }
         }
         return new Pair<>(resultId, maxCalories);
