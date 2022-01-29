@@ -4,15 +4,14 @@ import ru.uzaretskaya.cafe.utils.statistic.dto.CashierStatistic;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cashier implements Runnable {
     private final UUID id;
     private final String name;
     private final Cafe cafe;
 
-    private final AtomicInteger countOrders = new AtomicInteger(0);
-    private volatile double sum = 0;
+    private int countOrders = 0;
+    private double sum = 0;
 
     public Cashier(String name, Cafe cafe) {
         this.cafe = cafe;
@@ -42,12 +41,9 @@ public class Cashier implements Runnable {
     }
 
     public CashierStatistic getStatistic() {
-        CashierStatistic statistic;
-        synchronized (this) {
-            statistic = new CashierStatistic(id, countOrders.get(), sum);
-            countOrders.set(0);
-            sum = 0;
-        }
+        CashierStatistic statistic = new CashierStatistic(id, countOrders, sum);
+        countOrders = 0;
+        sum = 0;
         return statistic;
     }
 
@@ -57,9 +53,7 @@ public class Cashier implements Runnable {
     }
 
     private void addStatistic(double orderSum) {
-        synchronized (this) {
-            sum += orderSum;
-        }
-        countOrders.addAndGet(1);
+        sum += orderSum;
+        countOrders++;
     }
 }
