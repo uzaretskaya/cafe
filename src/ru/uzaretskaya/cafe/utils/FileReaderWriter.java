@@ -30,4 +30,11 @@ public class FileReaderWriter {
         }
         return null;
     }
+
+    public static void deleteFileIfExists(String filename) throws IOException {
+        Path file = Paths.get(filename);
+        if (Files.exists(file)) {
+            Files.delete(file);
+        }
+    }
 }

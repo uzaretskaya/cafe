@@ -8,6 +8,7 @@ import ru.uzaretskaya.cafe.utils.statistic.Manager;
 import ru.uzaretskaya.cafe.utils.statistic.UserStatisticManager;
 import ru.uzaretskaya.cafe.utils.statistic.dto.UserStatistic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,26 +17,26 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ru.uzaretskaya.cafe.utils.FileReaderWriter.deleteFileIfExists;
+
 public class Cafe {
     private final List<Meal> availableMeals = new ArrayList<>();
     private final List<Cashier> cashiers = new ArrayList<>();
     private final List<Manager> managers = new ArrayList<>();
     private final List<User> users = new ArrayList<>();
-    private final Map<UUID, UserStatistic> userStatistic = new HashMap<>();
-    private final String filenameForCashierStatistic;
-    private final String filenameForUserStatistic;
     private final CafeProperties properties = new CafeProperties();
+
     private final ConcurrentLinkedQueue<Order> orderQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger numberOfOrder = new AtomicInteger(0);
     private boolean isCafeOpen = false;
+    private String filenameForCashierStatistic;
+    private String filenameForUserStatistic;
+    private final Map<UUID, UserStatistic> userStatistic = new HashMap<>();
 
     public Cafe() {
         fillMenu();
-        createCashiers();
-        createManagers();
-        createUsers();
-        filenameForCashierStatistic = properties.getCashierStatisticFilenameFromProperties();
-        filenameForUserStatistic = properties.getUserStatisticFilenameFromProperties();
+        createPersonalAndCustomers();
+        prepareFilesForStatistic();
     }
 
     public List<Meal> getMenu() {
@@ -44,21 +45,7 @@ public class Cafe {
 
     public void open() {
         isCafeOpen = true;
-
-        for (Cashier cashier : cashiers) {
-            Thread t = new Thread(cashier);
-            t.start();
-        }
-
-        for (Manager manager : managers) {
-            Thread t = new Thread(manager);
-            t.start();
-        }
-
-        for (User user : users) {
-            Thread t = new Thread(user);
-            t.start();
-        }
+        startThreads();
     }
 
     public void close() {
@@ -124,6 +111,25 @@ public class Cafe {
         availableMeals.add(new Meal("Скрипт-мороженое", 150, 4));
     }
 
+    private void prepareFilesForStatistic() {
+        filenameForCashierStatistic = properties.getCashierStatisticFilenameFromProperties();
+        filenameForUserStatistic = properties.getUserStatisticFilenameFromProperties();
+
+        try {
+            deleteFileIfExists(filenameForCashierStatistic);
+            deleteFileIfExists(filenameForUserStatistic);
+        } catch (IOException e) {
+            System.out.println("New statistic will be added in existing files.");
+            e.printStackTrace();
+        }
+    }
+
+    private void createPersonalAndCustomers() {
+        createCashiers();
+        createManagers();
+        createUsers();
+    }
+
     private void createCashiers() {
         int countCashiers = properties.getCountCashiers();
         for (int i = 1; i <= countCashiers; i++) {
@@ -146,6 +152,23 @@ public class Cafe {
         int countCustomers = properties.getCountCustomers();
         for (int i = 1; i <= countCustomers; i++) {
             users.add(new User("Customer " + i, this));
+        }
+    }
+
+    private void startThreads() {
+        for (Cashier cashier : cashiers) {
+            Thread t = new Thread(cashier);
+            t.start();
+        }
+
+        for (Manager manager : managers) {
+            Thread t = new Thread(manager);
+            t.start();
+        }
+
+        for (User user : users) {
+            Thread t = new Thread(user);
+            t.start();
         }
     }
 
