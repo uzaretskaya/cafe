@@ -24,7 +24,9 @@ public class User implements Runnable {
             int mealIndex = getRandomNumber(0, menu.size() - 1);
             mealsForOrder.add(menu.get(mealIndex));
         }
-        cafe.createOrder(mealsForOrder, this);
+        synchronized (cafe) {
+            cafe.createOrder(mealsForOrder, this);
+        }
     }
 
     public UUID getId() {
