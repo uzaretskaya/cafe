@@ -101,7 +101,10 @@ public class MainManager implements Manager {
         Map<String, Double> mapIdToSumCalories = new HashMap<>();
         for (String[] line : lines) {
             String currentId = line[0];
-            double currentCalories = Double.parseDouble(line[2]);
+            double currentAverageCalories = Double.parseDouble(line[2]);
+            double ordersCount = Integer.parseInt(line[1]);
+            double currentCalories = currentAverageCalories * ordersCount;
+
             mapIdToSumCalories.merge(currentId, currentCalories, Double::sum);
         }
         return mapIdToSumCalories;

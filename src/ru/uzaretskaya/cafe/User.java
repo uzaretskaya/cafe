@@ -8,17 +8,17 @@ public class User implements Runnable {
     private final UUID id;
     private final String name;
     private final Cafe cafe;
-    private final List<Meal> menu;
 
     public User(String name, Cafe cafe) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.cafe = cafe;
-        this.menu = cafe.getMenu();
     }
 
     public void makeOrder() {
         List<Meal> mealsForOrder = new ArrayList<>();
+        List<Meal> menu = cafe.getMenu();
+
         int countMeals = getRandomNumber(1, 3);
         for (int i = 0; i < countMeals; i++) {
             int mealIndex = getRandomNumber(0, menu.size() - 1);

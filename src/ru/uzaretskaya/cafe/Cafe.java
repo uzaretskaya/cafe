@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +27,8 @@ public class Cafe {
     private final List<User> users = new ArrayList<>();
     private final CafeProperties properties = new CafeProperties();
 
-    private final ConcurrentLinkedQueue<Order> orderQueue = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger numberOfOrder = new AtomicInteger(0);
+    private final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger countOrders = new AtomicInteger(0);
     private boolean isCafeOpen = false;
     private String filenameForCashierStatistic;
     private String filenameForUserStatistic;
@@ -53,7 +54,7 @@ public class Cafe {
     }
 
     public void createOrder(List<Meal> meals, User customer) {
-        int orderNumber = numberOfOrder.addAndGet(1);
+        int orderNumber = countOrders.addAndGet(1);
         Order order = new Order(meals, orderNumber);
         orderQueue.offer(order);
         saveUserStatistic(customer, order);
@@ -81,7 +82,7 @@ public class Cafe {
     public List<String> getUserStatistic() {
         List<String> statistic = new ArrayList<>(userStatistic.size());
         for (Map.Entry<UUID, UserStatistic> entry : userStatistic.entrySet()) {
-            statistic.add(entry.getKey() + "," + entry.getValue());
+            statistic.add(entry.getKey() + "," + entry.getValue().getUserStatisticInfo());
         }
         userStatistic.clear();
         return statistic;
@@ -173,7 +174,7 @@ public class Cafe {
     }
 
     private void saveUserStatistic(User customer, Order order) {
-        Pair<Double, Double> orderInfo = order.getOrderAverageCaloriesAndAverageSum();
+        Pair<Integer, Double> orderInfo = order.getOrderCaloriesAndSum();
         UserStatistic savedUser = userStatistic.get(customer.getId());
         if (savedUser == null) {
             userStatistic.put(customer.getId(), new UserStatistic(1, orderInfo.getX(), orderInfo.getY()));

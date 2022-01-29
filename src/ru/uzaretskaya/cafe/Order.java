@@ -22,17 +22,14 @@ public class Order {
         return meals.stream().mapToDouble(Meal::getCost).sum();
     }
 
-    public Pair<Double,Double> getOrderAverageCaloriesAndAverageSum(){
-        int countMeals = meals.size();
+    public Pair<Integer,Double> getOrderCaloriesAndSum(){
         double sumCost = 0;
         int sumCalories = 0;
         for (Meal meal : meals) {
             sumCalories += meal.getCalories();
             sumCost += meal.getCost();
         }
-        double averageCalories = sumCalories * 1.0 / countMeals;
-        double averageSum = sumCost / countMeals;
-        return new Pair<>(averageCalories, averageSum);
+        return new Pair<>(sumCalories, sumCost);
     }
 
     @Override
