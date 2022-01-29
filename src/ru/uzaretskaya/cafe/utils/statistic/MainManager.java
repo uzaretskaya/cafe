@@ -14,7 +14,7 @@ import java.util.Map;
 public class MainManager implements Manager {
     private final Cafe cafe;
     private final int minutes;
-    private final DecimalFormat df = new DecimalFormat("#.00");
+    private final DecimalFormat df = new DecimalFormat("#.##");
 
     public MainManager(Cafe cafe, int minutes) {
         this.cafe = cafe;
@@ -45,7 +45,7 @@ public class MainManager implements Manager {
                 .filter(cashier -> cashier.getId().toString().equals(result.getX()))
                 .findFirst()
                 .ifPresent(cashier ->
-                        System.out.println("The best cashier is " + cashier + " with " + df.format(result.getY()) + " average check!"));
+                        System.out.println("The best cashier is " + cashier + " with " + df.format(result.getY()) + "$ average check!"));
     }
 
     private Pair<String,Double> getBestCashierIdAndAverageCheck(List<String[]> lines) {
