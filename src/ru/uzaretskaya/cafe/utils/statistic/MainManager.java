@@ -23,7 +23,7 @@ public class MainManager implements Manager {
 
     public void run() {
         while (true) {
-            if (cafe.isCafeClosed()) return;
+            if (cafe.isCafeOpen()) return;
             sleepForMinutes(minutes);
             readStatistic();
         }
@@ -40,12 +40,8 @@ public class MainManager implements Manager {
 
         Pair<String,Double> result = getBestCashierIdAndAverageCheck(lines);
 
-        List<Cashier> cafeCashiers = cafe.getCashiers();
-        cafeCashiers.stream()
-                .filter(cashier -> cashier.getId().toString().equals(result.getX()))
-                .findFirst()
-                .ifPresent(cashier ->
-                        System.out.println("The best cashier is " + cashier + " with " + df.format(result.getY()) + "$ average check!"));
+        Cashier cashier = cafe.getCashierById(result.getX());
+        System.out.println("The best cashier is " + cashier + " with " + df.format(result.getY()) + "$ average check!");
     }
 
     private Pair<String,Double> getBestCashierIdAndAverageCheck(List<String[]> lines) {
@@ -90,11 +86,8 @@ public class MainManager implements Manager {
 
         Pair<String,Double> result = calculateTheHungriestUser(lines);
 
-        List<User> cafeUsers = cafe.getUsers();
-        cafeUsers.stream()
-                .filter(user -> user.getId().toString().equals(result.getX()))
-                .findFirst()
-                .ifPresent(user -> System.out.println("The hungriest user is " + user + " with " + df.format(result.getY()) + " calories!"));
+        User user = cafe.getUserById(result.getX());
+        System.out.println("The hungriest user is " + user + " with " + df.format(result.getY()) + " calories!");
     }
 
     private Map<String, Double> getMapIdToSumCalories(List<String[]> lines) {

@@ -1,6 +1,7 @@
 package ru.uzaretskaya.cafe;
 
 public class Meal {
+
     private final String name;
     private final int calories;
     private final double cost;

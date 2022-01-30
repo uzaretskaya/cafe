@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class User implements Runnable {
+
     private final UUID id;
     private final String name;
     private final Cafe cafe;
@@ -13,6 +14,14 @@ public class User implements Runnable {
         this.id = UUID.randomUUID();
         this.name = name;
         this.cafe = cafe;
+    }
+
+    @Override
+    public void run() {
+        while (cafe.isCafeOpen()) {
+            sleepForHalfMinute();
+            makeOrder();
+        }
     }
 
     public void makeOrder() {
@@ -31,16 +40,6 @@ public class User implements Runnable {
 
     public UUID getId() {
         return id;
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            if (cafe.isCafeClosed()) return;
-
-            sleepForHalfMinute();
-            makeOrder();
-        }
     }
 
     @Override

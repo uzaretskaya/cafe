@@ -6,12 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
+
     private final List<Meal> meals = new ArrayList<>();
     private final int number;
+    private final User user;
+    private Cashier cashier;
 
-    public Order(List<Meal> meals, int number) {
+    public Order(List<Meal> meals, int number, User user) {
         this.meals.addAll(meals);
         this.number = number;
+        this.user = user;
+    }
+
+    public void setCashier(Cashier cashier) {
+        this.cashier = cashier;
     }
 
     public List<Meal> getMeals() {
@@ -34,6 +42,6 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order #" + number + " " + meals;
+        return "Order #" + number + ": " + meals + " for " + user;
     }
 }

@@ -19,7 +19,7 @@ public abstract class StatisticManager implements Manager {
 
     public void run() {
         while (true) {
-            if (cafe.isCafeClosed()) return;
+            if (cafe.isCafeOpen()) return;
             sleepForMinutes(minutes);
             saveStatistic();
         }
