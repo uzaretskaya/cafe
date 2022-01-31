@@ -1,6 +1,7 @@
-package ru.uzaretskaya.cafe;
+package ru.uzaretskaya.cafe.dto;
 
 public class Meal {
+
     private final String name;
     private final int calories;
     private final double cost;

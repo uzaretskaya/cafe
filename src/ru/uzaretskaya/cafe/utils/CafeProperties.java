@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class CafeProperties {
+
+    private static final String FILE_ENDING_CSV = ".csv";
     private final Properties property = new Properties();
 
     public CafeProperties() {
@@ -22,7 +24,8 @@ public class CafeProperties {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 3;
+            e.printStackTrace();
+            throw new RuntimeException("Couldn't read property countCashiers.");
         }
     }
 
@@ -31,7 +34,8 @@ public class CafeProperties {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 6;
+            e.printStackTrace();
+            throw new RuntimeException("Couldn't read property countCustomers.");
         }
     }
 
@@ -40,7 +44,8 @@ public class CafeProperties {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 1;
+            e.printStackTrace();
+            throw new RuntimeException("Couldn't read property cashierStatisticMinutes.");
         }
     }
 
@@ -49,7 +54,8 @@ public class CafeProperties {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 2;
+            e.printStackTrace();
+            throw new RuntimeException("Couldn't read property userStatisticMinutes.");
         }
     }
 
@@ -58,24 +64,25 @@ public class CafeProperties {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 2;
+            e.printStackTrace();
+            throw new RuntimeException("Couldn't read property mainStatisticMinutes.");
         }
     }
 
     public String getUserStatisticFilenameFromProperties() {
         String fileName = getProperty("userStatisticFilename");
         if (fileName == null) {
-            fileName = "userStatistic";
+            throw new RuntimeException("Couldn't read property userStatisticFilename.");
         }
-        return fileName + ".csv";
+        return fileName + FILE_ENDING_CSV;
     }
 
     public String getCashierStatisticFilenameFromProperties() {
         String fileName = getProperty("cashierStatisticFilename");
         if (fileName == null) {
-            fileName = "cashierStatistic";
+            throw new RuntimeException("Couldn't read property cashierStatisticFilename.");
         }
-        return fileName + ".csv";
+        return fileName + FILE_ENDING_CSV;
     }
 
     private String getProperty(String propertyName) {

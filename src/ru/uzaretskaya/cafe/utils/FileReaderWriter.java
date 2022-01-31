@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +29,10 @@ public class FileReaderWriter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public static void deleteFileIfExists(String filename) throws IOException {
-        Path file = Paths.get(filename);
-        if (Files.exists(file)) {
-            Files.delete(file);
-        }
+        Files.deleteIfExists(Paths.get(filename));
     }
 }
