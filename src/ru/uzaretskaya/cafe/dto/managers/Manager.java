@@ -1,6 +1,7 @@
-package ru.uzaretskaya.cafe.utils.statistic;
+package ru.uzaretskaya.cafe.dto.managers;
 
 public interface Manager extends Runnable {
+
     default void sleepForMinutes(int min) {
         try {
             Thread.sleep(1000L * min * 60);

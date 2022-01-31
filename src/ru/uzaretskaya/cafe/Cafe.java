@@ -1,11 +1,16 @@
 package ru.uzaretskaya.cafe;
 
+import ru.uzaretskaya.cafe.dto.Cashier;
+import ru.uzaretskaya.cafe.dto.Meal;
+import ru.uzaretskaya.cafe.dto.Order;
+import ru.uzaretskaya.cafe.dto.User;
+import ru.uzaretskaya.cafe.utils.CafeMenu;
 import ru.uzaretskaya.cafe.utils.CafeProperties;
-import ru.uzaretskaya.cafe.utils.CafeStatistic;
-import ru.uzaretskaya.cafe.utils.statistic.CashierStatisticManager;
-import ru.uzaretskaya.cafe.utils.statistic.MainManager;
-import ru.uzaretskaya.cafe.utils.statistic.Manager;
-import ru.uzaretskaya.cafe.utils.statistic.UserStatisticManager;
+import ru.uzaretskaya.cafe.statistic.CafeStatistic;
+import ru.uzaretskaya.cafe.dto.managers.CashierStatisticManager;
+import ru.uzaretskaya.cafe.dto.managers.MainManager;
+import ru.uzaretskaya.cafe.dto.managers.Manager;
+import ru.uzaretskaya.cafe.dto.managers.UserStatisticManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cafe {
 
-    private final List<Meal> menu = new ArrayList<>();
+    private final List<Meal> menu;
 
     private final Map<String, Cashier> cashiers = new HashMap<>();
     private final Map<String, User> users = new HashMap<>();
@@ -29,15 +34,14 @@ public class Cafe {
     private final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger countOrders = new AtomicInteger(0);
 
-    private volatile boolean isCafeOpen = false;
+    private volatile boolean isOpen = false;
 
     public Cafe() {
-        fillMenu();
-
         createCashiers();
         createManagers();
         createUsers();
 
+        menu = CafeMenu.getMenu();
         properties = new CafeProperties();
         cafeStatistic = new CafeStatistic(properties);
     }
@@ -70,7 +74,7 @@ public class Cafe {
     }
 
     public void open() {
-        isCafeOpen = true;
+        isOpen = true;
         startThreads();
     }
 
@@ -92,7 +96,7 @@ public class Cafe {
     }
 
     public void close() {
-        isCafeOpen = false;
+        isOpen = false;
     }
 
     public void createOrder(List<Meal> meals, User user) {
@@ -118,11 +122,11 @@ public class Cafe {
     }
 
     public List<String> getCashierStatistic() {
-        return cafeStatistic.getCashierStatistic();
+        return cafeStatistic.getCashierStatistic(cashiers);
     }
 
     public List<String> getUserStatistic() {
-        return cafeStatistic.getUserStatistic();
+        return cafeStatistic.getUserStatistic(users);
     }
 
     public Cashier getCashierById(String id) {
@@ -133,16 +137,8 @@ public class Cafe {
         return users.get(id);
     }
 
-    private void fillMenu() {
-        menu.add(new Meal("Айти-стейк", 500, 10));
-        menu.add(new Meal("Легаси-салат", 50, 5));
-        menu.add(new Meal("Свитч-картофель", 300, 3));
-        menu.add(new Meal("Дебаг-кола", 25, 2));
-        menu.add(new Meal("Скрипт-мороженое", 150, 4));
-    }
-
-    public boolean isCafeOpen() {
-        return isCafeOpen;
+    public boolean isOpen() {
+        return isOpen;
     }
 
     public List<Meal> getMenu() {

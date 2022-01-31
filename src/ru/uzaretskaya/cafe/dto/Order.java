@@ -1,6 +1,4 @@
-package ru.uzaretskaya.cafe;
-
-import ru.uzaretskaya.cafe.utils.Pair;
+package ru.uzaretskaya.cafe.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +16,16 @@ public class Order {
         this.user = user;
     }
 
+    public Cashier getCashier() {
+        return cashier;
+    }
+
     public void setCashier(Cashier cashier) {
         this.cashier = cashier;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public List<Meal> getMeals() {
@@ -30,14 +36,8 @@ public class Order {
         return meals.stream().mapToDouble(Meal::getCost).sum();
     }
 
-    public Pair<Integer,Double> getOrderCaloriesAndSum(){
-        double sumCost = 0;
-        int sumCalories = 0;
-        for (Meal meal : meals) {
-            sumCalories += meal.getCalories();
-            sumCost += meal.getCost();
-        }
-        return new Pair<>(sumCalories, sumCost);
+    public int getCaloriesSum() {
+        return meals.stream().mapToInt(Meal::getCalories).sum();
     }
 
     @Override

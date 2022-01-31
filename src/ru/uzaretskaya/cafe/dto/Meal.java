@@ -1,4 +1,4 @@
-package ru.uzaretskaya.cafe;
+package ru.uzaretskaya.cafe.dto;
 
 public class Meal {
 

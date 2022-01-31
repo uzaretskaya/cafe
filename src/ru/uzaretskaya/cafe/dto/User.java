@@ -1,4 +1,6 @@
-package ru.uzaretskaya.cafe;
+package ru.uzaretskaya.cafe.dto;
+
+import ru.uzaretskaya.cafe.Cafe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +20,13 @@ public class User implements Runnable {
 
     @Override
     public void run() {
-        while (cafe.isCafeOpen()) {
+        while (cafe.isOpen()) {
             sleepForHalfMinute();
-            makeOrder();
+            createOrder();
         }
     }
 
-    public void makeOrder() {
+    private void createOrder() {
         List<Meal> mealsForOrder = new ArrayList<>();
         List<Meal> menu = cafe.getMenu();
 
@@ -38,15 +40,6 @@ public class User implements Runnable {
         }
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
     private void sleepForHalfMinute() {
         try {
             Thread.sleep(1000L * 30);
@@ -57,5 +50,14 @@ public class User implements Runnable {
 
     private int getRandomNumber(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
