@@ -37,13 +37,13 @@ public class Cafe {
     private volatile boolean isOpen = false;
 
     public Cafe() {
-        createCashiers();
-        createManagers();
-        createUsers();
-
         menu = CafeMenu.getMenu();
         properties = new CafeProperties();
         cafeStatistic = new CafeStatistic(properties);
+
+        createCashiers();
+        createManagers();
+        createUsers();
     }
 
     private void createCashiers() {
